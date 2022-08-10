@@ -1,6 +1,6 @@
+import os
 import pygame
 from pygame import mixer
-from distutils.core import setup
 
 pygame.init()
 print("KANGA Beat Machine v1.0")
@@ -14,31 +14,36 @@ blue = (0, 255, 255)
 red = (255, 0, 0)
 green = (0, 255, 0)
 gold = (212, 175, 55)
-WIDTH = 1400
-HEIGHT = 800
+WIDTH = 1920
+HEIGHT = 1000
 active_length = 0
 active_beat = 0
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 # sounds
 
-hi_hat = mixer.Sound('sounds\hi hat.wav')
-snare = mixer.Sound('sounds\snare.wav')
-kick = mixer.Sound('sounds\kick.wav')
-crash = mixer.Sound('sounds\crash.wav')
-clap = mixer.Sound('sounds\clap.wav')
-bass = mixer.Sound("sounds\\bass.wav")
+
+kick = mixer.Sound(dir_path+'\sounds\kick.wav')
+bass = mixer.Sound(dir_path+"\sounds\\bass.wav")
+snare = mixer.Sound(dir_path+'\sounds\snare.wav')
+clap = mixer.Sound(dir_path+'\sounds\clap.wav')
+hi_hat = mixer.Sound(dir_path+'\sounds\hi hat.wav')
+crash = mixer.Sound(dir_path+'\sounds\crash.wav')
+tomH =  mixer.Sound(dir_path+'\sounds\\tomH.wav')
+tomL = mixer.Sound(dir_path+"\sounds\\tomL.wav")
+
 
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption('The Beat Maker')
-label_font = pygame.font.Font('Roboto-Bold.ttf', 32)
-medium_font = pygame.font.Font('Roboto-Bold.ttf', 24)
+label_font = pygame.font.Font(dir_path+'\Roboto-Bold.ttf', 32)
+medium_font = pygame.font.Font(dir_path+'\Roboto-Bold.ttf', 24)
 beat_changed = True
 timer = pygame.time.Clock()
-fps = 60
+fps = 120
 beats = 8
-bpm = 240
-instruments = 6
+bpm = 120
+instruments = 8
 playing = True
 clicked = [[-1 for _ in range(beats)] for _ in range(instruments)]
 active_list = [1 for _ in range(instruments)]
@@ -46,7 +51,7 @@ pygame.mixer.set_num_channels(instruments * 3)
 save_menu = False
 load_menu = False
 saved_beats = []
-file = open('saved_beats.txt', 'r')
+file = open(dir_path+'\saved_beats.txt', 'r')
 for line in file:
     saved_beats.append(line)
 beat_name = ''
@@ -61,18 +66,22 @@ def draw_grid(clicks, beat, actives):
     for i in range(instruments + 1):
         pygame.draw.line(screen, gray, (0, i * 100), (200, i * 100), 3)
     colors = [gray, white, gray]
-    kick_text = label_font.render('Kick', True, colors[actives[5]])
+    kick_text = label_font.render('Kick', True, colors[actives[1]])
     screen.blit(kick_text, (30, 30))
-    bass_text = label_font.render('Bass', True, colors[actives[1]])
+    bass_text = label_font.render('Bass', True, colors[actives[2]])
     screen.blit(bass_text, (30, 130))
-    snare_text = label_font.render('Snare', True, colors[actives[2]])
+    snare_text = label_font.render('Snare', True, colors[actives[3]])
     screen.blit(snare_text, (30, 230))
-    clap_text = label_font.render('Clap', True, colors[actives[3]])
+    clap_text = label_font.render('Clap', True, colors[actives[4]])
     screen.blit(clap_text, (30, 330))
-    hi_hat_text = label_font.render('Hi Hat', True, colors[actives[4]])
+    hi_hat_text = label_font.render('Hi Hat', True, colors[actives[5]])
     screen.blit(hi_hat_text, (30, 430))
-    crash_text = label_font.render('Crash', True, colors[actives[5]])
+    crash_text = label_font.render('Crash', True, colors[actives[6]])
     screen.blit(crash_text, (30, 530))
+    tomH_text = label_font.render('Tom High', True, colors[actives[7]])
+    screen.blit(tomH_text, (30, 630))
+    tomL_text = label_font.render('Tom Low', True, colors[actives[7]])
+    screen.blit(tomL_text, (30, 730))
     
     for i in range(beats):
         for j in range(instruments):
@@ -112,6 +121,12 @@ def play_notes():
                 
             if i == 5:
                 crash.play()
+
+            if i == 6:
+                tomH.play()
+
+            if i == 7:
+                tomL.play()
                 
 
 def draw_save_menu(beat_name, typing):
@@ -200,9 +215,9 @@ while run:
     screen.blit(bpm_text2, (370, HEIGHT - 100))
     bpm_add_rect = pygame.draw.rect(screen, gray, [510, HEIGHT - 150, 48, 48], 0, 5)
     bpm_sub_rect = pygame.draw.rect(screen, gray, [510, HEIGHT - 100, 48, 48], 0, 5)
-    add_text = medium_font.render('+5', True, white)
+    add_text = medium_font.render('+1', True, white)
     screen.blit(add_text, (520, HEIGHT - 140))
-    sub_text = medium_font.render('-5', True, white)
+    sub_text = medium_font.render('-1', True, white)
     screen.blit(sub_text, (520, HEIGHT - 90))
     # beats per loop buttons
     beats_rect = pygame.draw.rect(screen, gray, [600, HEIGHT - 150, 200, 100], 5, 5)
@@ -263,9 +278,9 @@ while run:
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
             if bpm_add_rect.collidepoint(event.pos):
-                bpm += 5
+                bpm += 1
             elif bpm_sub_rect.collidepoint(event.pos):
-                bpm -= 5
+                bpm -= 1
             if clear.collidepoint(event.pos):
                 clicked = [[-1 for _ in range(beats)] for _ in range(instruments)]
             for i in range(len(instrument_rects)):
@@ -339,7 +354,7 @@ while run:
 
     pygame.display.flip()
 
-file = open('saved_beats.txt', 'w')
+file = open(dir_path+'\saved_beats.txt', 'w')
 for i in range(len(saved_beats)):
     file.write(str(saved_beats[i]))
 file.close()
